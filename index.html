@@ -26,8 +26,8 @@
 
   <script>
     async function searchGoogle() {
-      var searchTerm = document.getElementById("searchInput").value;
-      var countryCode = document.getElementById("countrySelect").value;
+      let searchTerm = document.getElementById("searchInput").value;
+      let countryCode = document.getElementById("countrySelect").value;
       if (searchTerm.trim() === "") {
         alert("Prosím, zadejte klíčové slovo.");
         return;
