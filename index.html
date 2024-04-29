@@ -48,9 +48,9 @@
         try {
           const response = await fetch(proxyUrl + searchUrl);
           const html = await response.text();
-          var parser = new DOMParser();
-          var htmlDoc = parser.parseFromString(html, 'text/html');
-          var resultLinks = htmlDoc.querySelectorAll('.yuRUbf a');
+          let parser = new DOMParser();
+          let htmlDoc = parser.parseFromString(html, 'text/html');
+          let resultLinks = htmlDoc.querySelectorAll('.yuRUbf a');
           if (resultLinks.length > 0) {
             resultLinks.forEach(link => {
               urls.push(link.getAttribute('href'));
@@ -80,7 +80,7 @@
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "search_results.csv");
+        link.setAttribute("download", "vysledky_hledani.csv");
         document.body.appendChild(link);
         link.click(); 
         // Obnovení stránky po stažení souboru
