@@ -9,7 +9,7 @@
 <body>
   <div id="container">
     <h1>Google pozice</h1>
-    <p>Zadejte klíčové slovo, vyberte zemi, ze které chcete vyhledávat, a počet záznamů. Obratem se vytvoří csv soubor s výsledky. </p>
+    <p>Zadejte klíčové slovo, vyberte zemi, ze které chcete vyhledávat, zvolte počet stran a obratem se vytvoří csv soubor s výsledky vyhledávání. </p> 
     <p>Ten si následně můžete stáhnout. </p>
     <input type="text" id="searchInput" placeholder="Zadejte klíčové slovo">
     <select id="countrySelect">
@@ -18,7 +18,7 @@
       <option value="us">USA</option>
       <option value="de">Německo</option>
     </select>
-    <input type="number" id="resultCountInput" placeholder="Počet výsledků (max 100)" min="1" max="100">
+    <input type="number" id="pageCount" placeholder="Počet stran" min="1" max="10">
     <button onclick="searchGoogle()">Prohledat Google</button>
     <div id="downloadButton" style="display:none">
       <button onclick="downloadResults()">Stáhnout výsledky</button>
@@ -29,53 +29,57 @@
     async function searchGoogle() {
       let searchTerm = document.getElementById("searchInput").value;
       let countryCode = document.getElementById("countrySelect").value;
-      let resultCount = document.getElementById("resultCountInput").value;
+      let pageCount = parseInt(document.getElementById("pageCount").value) || 1;
       if (searchTerm.trim() === "") {
         alert("Prosím, zadejte klíčové slovo.");
         return;
       }
-      if (!resultCount || resultCount < 1 || resultCount > 100) {
-        alert("Prosím, zadejte počet výsledků mezi 1 a 100.");
-        return;
-      }
 
-      // Pole s proxy servery
+      // Proxy servery
       const proxyServers = [
         'https://cors-fixer.herokuapp.com/',
         'https://api.allorigins.win/raw?url=',
         'https://cors.bridged.cc/'
       ];
 
-      let success = false;
       let urls = [];
-      for (let i = 0; i < proxyServers.length; i++) {
-        const proxyUrl = proxyServers[i];
-        const searchUrl = `https://www.google.com/search?gl=${countryCode}&q=${encodeURIComponent(searchTerm)}`;
-        try {
-          const response = await fetch(proxyUrl + searchUrl);
-          const html = await response.text();
-          let parser = new DOMParser();
-          let htmlDoc = parser.parseFromString(html, 'text/html');
-          let resultLinks = htmlDoc.querySelectorAll('.yuRUbf a');
-          if (resultLinks.length > 0) {
-            resultLinks.forEach(link => {
-              urls.push(link.getAttribute('href'));
-            });
-            success = true;
-            break;
-          } else {
-            console.error('Chyba při provádění hledání');
+      for (let page = 0; page < pageCount; page++) {
+        let start = page * 10;
+        let success = false;
+
+        for (let i = 0; i < proxyServers.length; i++) {
+          const proxyUrl = proxyServers[i];
+          const searchUrl = `https://www.google.com/search?gl=${countryCode}&q=${encodeURIComponent(searchTerm)}&start=${start}`;
+          try {
+            const response = await fetch(proxyUrl + searchUrl);
+            const html = await response.text();
+            let parser = new DOMParser();
+            let htmlDoc = parser.parseFromString(html, 'text/html');
+            let resultLinks = htmlDoc.querySelectorAll('.yuRUbf a');
+            if (resultLinks.length > 0) {
+              resultLinks.forEach(link => {
+                urls.push(link.getAttribute('href'));
+              });
+              success = true;
+              break;
+            } else {
+              console.error('Chyba při prohledávání stránky');
+            }
+          } catch (error) {
+            console.error('Chyba při volání proxy serveru:', error);
           }
-        } catch (error) {
-          console.error('Chyba při provádění hledání:', error);
+        }
+
+        if (!success) {
+          alert("Nepodařilo se načíst výsledky pro stránku " + (page + 1));
         }
       }
 
-      if (success) {
+      if (urls.length > 0) {
         document.getElementById('downloadButton').style.display = 'block'; // Zobrazí tlačíko stahování
-        sessionStorage.setItem('searchResults', JSON.stringify(urls.slice(0, resultCount)));
+        sessionStorage.setItem('searchResults', JSON.stringify(urls));
       } else {
-        alert("Nepodařilo se najít žádné výsledky. Zřejmě je problém na straně proxy serverů");
+        alert("Nepodařilo se najít žádné výsledky.");
       }
     }
 
@@ -88,7 +92,7 @@
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "vysledky_hledani.csv");
         document.body.appendChild(link);
-        link.click(); 
+        link.click();
         // Obnovení stránky po stažení souboru
         setTimeout(function(){
           location.reload();
