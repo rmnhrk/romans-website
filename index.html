@@ -67,7 +67,7 @@
 
       if (success) {
         document.getElementById('downloadButton').style.display = 'block'; // Zobrazí tlačíko stahování
-        sessionStorage.setItem('searchResults', JSON.stringify(urls.slice(0, 10)));
+        sessionStorage.setItem('searchResults', JSON.stringify(urls.slice(0, 100)));
       } else {
         alert("Nepodařilo se najít žádné výsledky. Zřejmě je problém na straně proxy serverů");
       }
