@@ -33,6 +33,3 @@ button:hover {
   background-color: #45a049;
 }
 
-#pageCount { /* Stylizace pole pro počet stran */
-  width: calc(100% - 60px); /* Zajistí, že šířka bude konzistentní s ostatními vstupy */
-}
