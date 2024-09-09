@@ -12,7 +12,7 @@ body {
 
 #searchInput,
 #countrySelect,
-#pageCount, /* Přidáno pro konzistenci s ostatními poli */
+#pageCount, 
 button {
   margin-bottom: 30px; 
   padding: 16px 28px; 
@@ -33,3 +33,7 @@ button:hover {
   background-color: #45a049;
 }
 
+#pageCount, 
+button {
+  padding: 16px 40px !important; 
+}
